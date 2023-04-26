@@ -1,0 +1,67 @@
+---
+- name: deploy calculator
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: update sys 
+    apt:
+     update_cache: yes
+    
+  - name: install from apt 
+    apt:
+     pkg:
+     - nginx
+     - gunicorn
+     - python3-pip 
+     - virtualenv 
+     state: present
+
+
+  #- name: Create a virtualenv
+  #  virtualenv:
+   #   path: /home/kings/venv
+
+  - name: clone calculator
+    ansible.builtin.git:
+      repo: https://github.com/preciousakpan/calculator.git
+      dest: /home/kings/my_app
+      version: master 
+
+  - name: install flask 
+    pip: 
+      name: flask 
+      state: present
+    
+  
+  - name: requirements
+    ansible.builtin.pip:
+      requirements: /home/kings/my_app/requirements.txt
+
+  #- name: gunicorn service file
+   #  gunicorn_exec: /home/kings/calculator/my_app/bin/gunicorn 
+    #  gunicorn_workers: 2
+     # gunicorn_module: calculator_module:app
+      #gunicorn_bind: 127.0.0.1:8000
+      #gunicorn_service_name: gunicorn
+
+  - name: copy gunicorn systemd service template 
+    ansible.builtin.copy:
+      src: /home/kings/Desktop/ansible/playbook/gunicorn.service.kay
+      dest: /etc/systemd/system/gunicorn.service 
+      owner: www-data 
+      group: www-data 
+      mode: 0644 
+
+  - name: copy nginx default server config 
+    ansible.builtin.copy:
+      src:   /home/kings/Desktop/ansible/playbook/nginx.serv
+      dest: /etc/nginx/sites-enabled/default
+
+  - name: Reload service nginx, in all cases
+    ansible.builtin.systemd:
+      name: nginx
+      state: restarted
+      daemon_reload: true
+
+    
