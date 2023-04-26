@@ -1,0 +1,31 @@
+--- 
+- name: deploy static app 
+  hosts: all
+  become: yes
+  
+  tasks:
+  - name: install nginx
+    ansible.builtin.apt:
+     name:
+       - nginx
+     update_cache: yes 
+  
+  - name: clone git repo
+    ansible.builtin.git:
+      repo: https://github.com/udacity/fend-project-memory-game.git
+      dest: /var/www/html/static
+      version: master  
+
+  - name: copy and replace default file
+    ansible.builtin.copy:
+      src: /home/kings/Desktop/ansible/john.1exm/default
+      dest: /etc/nginx/sites-enabled/default
+      follow: yes
+
+  - name: Reload service nginx, in all cases
+    ansible.builtin.systemd:
+      name: nginx
+      state: restarted 
+      daemon_reload: true
+
+  
