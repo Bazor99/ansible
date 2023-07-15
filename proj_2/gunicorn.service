@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn
+After=network.target
+
+[Service]
+User=kings
+Group=www-data
+WorkingDirectory=/home/ubuntu/flaskapp
+Environment="PATH=/home/ubuntu/flaskapp/venv/bin"
+ExecStart=/home/ubuntu/flaskapp/venv/bin/gunicorn --bind 0.0.0.0:5000 wsgi:app
+
+[Install]
+WantedBy=multi-user.target

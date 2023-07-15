@@ -1,0 +1,28 @@
+--- 
+- name: Deploy django app with mysql 
+  hosts: all        
+  become: yes
+
+  tasks:
+- name: system update
+  apt:
+   update_cache: yes 
+
+- name: install packages 
+  apt:
+  - name:
+    - nginx 
+    - python3 
+    - python3-pip 
+    - mysql-server
+    - mysql-client 
+    - libmysqlclient-dev 
+
+    state: present 
+
+- name: clone django app    
+  git: 
+    repo: https://github.com/justdjango/django-ecommerce.git 
+    dest: /home/ubuntu/django-app 
+
+- name: 

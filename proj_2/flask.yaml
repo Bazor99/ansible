@@ -1,0 +1,60 @@
+---
+- name: deploy flask app
+  hosts: all
+  become: yes
+  vars:
+    flask_present: "{{lookup('file', '/home/ubuntu/flaskapp/requirements.txt') | regex_search('Flask')}}"
+
+  tasks:
+  - name: system update 
+    ansible.builtin.apt: 
+    
+     update_cache: yes 
+   
+  - name: install app package  
+    apt:
+    - name: 
+        - nginx
+        - python3
+        - python3-pip 
+      state: present 
+
+  - name: install gunicorn 
+    pip:
+    - name: gunicorn   
+      executable: pip3 
+      state: present     
+    
+  - name: clone flask repo
+    git: 
+     repo: https://github.com/preciousakpan/FlaskChess.git
+     dest: home/ubuntu/flaskapp 
+  
+  - name: install requirements  
+    pip: 
+      requirements: /home/ubuntu/flaskapp/requirements.txt  
+      executable: pip3 
+      state: present 
+ 
+  - name: install flask 
+    pip: 
+    - name: flask 
+      executable: pip3
+      state: present 
+    when: flask_present | boo1 == false  
+    
+  - name: copy gunicorn file 
+    ansible.builtin.copy:
+      src: /home/kings/Desktop/ansible/proj_2/gunicorn.service
+      dest: /etc/systemd/system/gunicorn.service 
+      owner: www-data 
+      group: www-data 
+      mode: 0644 
+
+  - name: copy nginx default server config 
+    ansible.builtin.copy:
+      src: /home/kings/Desktop/ansible/proj_2/default
+      dest: /etc/nginx/sites-enabled/default 
+    notify: Restart Nginx
+
+

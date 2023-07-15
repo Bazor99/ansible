@@ -11,3 +11,11 @@ ExecStart=/home/kings/my_app/venv/bin/gunicorn --bind 0.0.0.0:5000 wsgi:app
 
 [Install]
 WantedBy=multi-user.target
+
+
+
+
+
+
+
+

@@ -1,0 +1,39 @@
+---
+- name: deploy node app 
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: system updates 
+    ansible.builtin.apt: 
+      update_cache: yes 
+
+  - name: install from apt 
+    apt:
+     pkg:
+     - nodejs 
+     - npm 
+     - pm2 
+     - nginx 
+    
+
+  - name: clone repository 
+    ansible.builtin.git:
+      repo: https://github.com/pujariamol/AmazoneStoreNodeJS.git
+      dest: /home/kings/new_app
+      version: master 
+
+
+  - name: copy nginx conf 
+    ansible.builtin.copy: 
+      src: /home/kings/Desktop/ansible/playbuk2/nginx 
+      dest: /etc/nginx/sites-enabled/default 
+
+
+  - name: start app 
+    ansible.builtin.systemd: 
+      name: 
+       - app.js
+       - nginx 
+      state: restarted 
+      daemon_reload: true 
